@@ -3,6 +3,7 @@ const widgetRepository = require('../repositories/widgetRepository');
 const { NotFoundError, BadRequestError } = require('../middleware/errorHandler');
 const { geoService } = require('./geoService');
 const { dispatchSafeConfirmation } = require('./notificationService');
+const { eventStreamService } = require('./eventStreamService');
 
 async function submitLead({
   widgetId,
@@ -76,6 +77,17 @@ async function submitLead({
     { submission, widget, payload },
     notificationHandler
   );
+
+  // 6. Stretch Goal: Real-time broadcast to connected tenant dashboard viewers
+  eventStreamService.publishLeadEvent(widget.tenant_id, {
+    id: submission.id,
+    widget_id: submission.widget_id,
+    widget_title: widget.title,
+    payload: submission.payload,
+    geo: submission.geo,
+    status: submission.status,
+    created_at: submission.created_at
+  });
 
   return {
     id: submission.id,

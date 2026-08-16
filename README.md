@@ -205,6 +205,45 @@ When a submission is received, the system follows a resilient two-phase executio
 
 ---
 
+## Stretch Goals
+
+### Real-Time Owner Dashboard via Server-Sent Events (SSE)
+
+The platform includes a real-time event streaming pipeline using Server-Sent Events (`text/event-stream`), allowing authenticated tenant dashboard clients to receive instant push updates whenever a new lead submission is ingested.
+
+#### Endpoint Specification
+- **Route**: `GET /api/dashboard/stream`
+- **Authentication**: JWT token via `Authorization: Bearer <token>` header or `?token=<jwt>` query parameter (for standard browser `EventSource` compatibility).
+- **Headers Returned**:
+  ```http
+  Content-Type: text/event-stream
+  Cache-Control: no-cache, no-transform
+  Connection: keep-alive
+  ```
+
+#### How to Connect from Dashboard UI / Browser
+```javascript
+// Native browser EventSource connection
+const token = localStorage.getItem('tenant_jwt_token');
+const eventSource = new EventSource(`http://localhost:3000/api/dashboard/stream?token=${token}`);
+
+// Listen for incoming live lead submissions
+eventSource.onmessage = function (event) {
+  const data = JSON.parse(event.data);
+  if (data.type === 'new_lead') {
+    console.log('⚡ New Lead Captured:', data.data);
+    // Dynamically update dashboard KPI counters and recent lead tables
+    updateDashboardMetrics(data.data);
+  }
+};
+```
+
+#### Key Architecture Guarantees
+- **Strict Tenant Partitioning**: Client streams are registered exclusively to `tenant:${req.tenantId}` channels. Tenant A will never receive events from Tenant B.
+- **Resilient Isolation**: Event broadcasting is a non-blocking safe side effect executing post-persistence. Any connection disconnects or client stream lag cannot fail or delay lead capture ingestion.
+
+---
+
 ## Limitations
 
 - **Multi-Region Clustering**: Database replication is configured as a single primary instance; active-active multi-region clustering is not included in this release.

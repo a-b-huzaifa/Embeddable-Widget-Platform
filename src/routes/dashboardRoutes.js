@@ -94,4 +94,14 @@ router.get('/recent-submissions', async (req, res, next) => {
   }
 });
 
+const { eventStreamService } = require('../services/eventStreamService');
+
+/**
+ * GET /api/dashboard/stream
+ * Server-Sent Events (SSE) stream for real-time lead updates
+ */
+router.get('/stream', (req, res) => {
+  eventStreamService.handleSseConnection(req, res);
+});
+
 module.exports = router;

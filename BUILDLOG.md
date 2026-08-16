@@ -67,9 +67,15 @@ This document details the stage-by-stage engineering journey of the **FlyRank Ca
 ### Stage 12: Final Test Consolidation & Verification
 - **AI Contributions**: Verified 100% test coverage across all required criteria (CORS preflight, invalid payload, oversized payload, rate limiting, spam control, provider fallback, widget rendering, tenant isolation, safe side effect failure), created `tests/e2eIntegration.test.js`, ran the full test suite (80 passed, 0 failed), and compiled `BUILDLOG.md`, `EVIDENCE.md`, `NOTES.md`, and `memory.md`.
 
+### Stage 13: Documentation & Manifest Finalization
+- **AI Contributions**: Created `capstone.yaml` evaluation manifest, finalized `README.md` with complete ASCII architecture diagrams, exact setup/seed/run/test commands, and an honest Limitations section.
+
+### Stage 14: Stretch Goal - Real-Time Dashboard via Server-Sent Events (SSE)
+- **AI Contributions**: Implemented in-memory tenant-isolated event broker in `src/services/eventStreamService.js`, added `GET /api/dashboard/stream` supporting both Bearer headers and query-based JWT auth for browser `EventSource`, connected post-persistence live broadcast in `src/services/submissionService.js`, built dedicated test suite `tests/realtimeEvents.test.js`, and documented in `README.md`, `EVIDENCE.md`, and `NOTES.md`.
+
 ---
 
 ## Final Quality Summary
-- **Test Suites**: 10 passed, 10 total (100% pass rate)
-- **Automated Tests**: 80 passed, 80 total
+- **Test Suites**: 11 passed, 11 total (100% pass rate)
+- **Automated Tests**: 86 passed, 86 total
 - **Git Compliance**: Zero git commands executed by agent; all commits and pushes managed manually by the user.

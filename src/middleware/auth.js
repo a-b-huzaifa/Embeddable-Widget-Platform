@@ -4,16 +4,18 @@ const { UnauthorizedError } = require('./errorHandler');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 
 function authMiddleware(req, res, next) {
+  let token = null;
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new UnauthorizedError('Missing or invalid Authorization header'));
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  } else if (req.query && req.query.token) {
+    // Support EventSource query param authentication for SSE
+    token = req.query.token;
   }
 
-  const token = authHeader.split(' ')[1];
-
   if (!token) {
-    return next(new UnauthorizedError('Authentication token missing'));
+    return next(new UnauthorizedError('Missing or invalid Authorization header'));
   }
 
   try {
