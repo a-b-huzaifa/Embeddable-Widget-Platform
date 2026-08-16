@@ -46,7 +46,7 @@ describe('Authenticated Widget Management API (/api/widgets)', () => {
   });
 
   describe('1. Happy Paths (CRUD)', () => {
-    test('POST /api/widgets - creates widget successfully (201 Created)', async () => {
+    test('POST /api/widgets - creates widget successfully (201 Created) with embed snippet', async () => {
       widgetRepository.createWidget.mockResolvedValue(mockWidget);
 
       const res = await request(app)
@@ -64,6 +64,9 @@ describe('Authenticated Widget Management API (/api/widgets)', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data.id).toBe(WIDGET_ID);
       expect(res.body.data.title).toBe('Newsletter Subscription Widget');
+      expect(res.body.data.snippet).toBeDefined();
+      expect(res.body.data.snippet).toContain(WIDGET_ID);
+      expect(res.body.data.snippet).toMatch(new RegExp(`^<script src="http://localhost:\\d+/widget\\.js\\?id=${WIDGET_ID}"></script>$`));
       expect(widgetRepository.createWidget).toHaveBeenCalledWith(
         expect.objectContaining({
           tenantId: TENANT_A,
@@ -72,7 +75,7 @@ describe('Authenticated Widget Management API (/api/widgets)', () => {
       );
     });
 
-    test('GET /api/widgets - lists all widgets for tenant (200 OK)', async () => {
+    test('GET /api/widgets - lists all widgets for tenant with snippets (200 OK)', async () => {
       widgetRepository.listWidgetsByTenant.mockResolvedValue([mockWidget]);
 
       const res = await request(app)
@@ -84,10 +87,11 @@ describe('Authenticated Widget Management API (/api/widgets)', () => {
       expect(Array.isArray(res.body.data)).toBe(true);
       expect(res.body.data.length).toBe(1);
       expect(res.body.data[0].id).toBe(WIDGET_ID);
+      expect(res.body.data[0].snippet).toContain(WIDGET_ID);
       expect(widgetRepository.listWidgetsByTenant).toHaveBeenCalledWith(TENANT_A);
     });
 
-    test('GET /api/widgets/:id - retrieves single widget for owning tenant (200 OK)', async () => {
+    test('GET /api/widgets/:id - retrieves single widget with snippet (200 OK)', async () => {
       widgetRepository.findWidgetById.mockResolvedValue(mockWidget);
 
       const res = await request(app)
@@ -97,7 +101,23 @@ describe('Authenticated Widget Management API (/api/widgets)', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.id).toBe(WIDGET_ID);
+      expect(res.body.data.snippet).toBe(`<script src="http://localhost:3000/widget.js?id=${WIDGET_ID}"></script>`);
       expect(widgetRepository.findWidgetById).toHaveBeenCalledWith(WIDGET_ID);
+    });
+
+    test('GET /api/widgets/:id/embed - returns ready-to-paste embed snippet (200 OK)', async () => {
+      widgetRepository.findWidgetById.mockResolvedValue(mockWidget);
+
+      const res = await request(app)
+        .get(`/api/widgets/${WIDGET_ID}/embed`)
+        .set('Authorization', `Bearer ${tokenTenantA}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.widget_id).toBe(WIDGET_ID);
+      expect(res.body.data.snippet).toBe(`<script src="http://localhost:3000/widget.js?id=${WIDGET_ID}"></script>`);
+      expect(res.body.data.snippet).toContain(WIDGET_ID);
+      expect(res.body.data.snippet).toMatch(/^<script src="http:\/\/localhost:\d+\/widget\.js\?id=[a-f0-9-]+"><\/script>$/);
     });
 
     test('PUT /api/widgets/:id - updates widget for owning tenant (200 OK)', async () => {
@@ -116,6 +136,7 @@ describe('Authenticated Widget Management API (/api/widgets)', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.title).toBe('Updated Title');
+      expect(res.body.data.snippet).toContain(WIDGET_ID);
       expect(widgetRepository.updateWidget).toHaveBeenCalled();
     });
 
@@ -233,6 +254,19 @@ describe('Authenticated Widget Management API (/api/widgets)', () => {
       expect(res.body.error.statusCode).toBe(403);
       expect(widgetRepository.deleteWidget).not.toHaveBeenCalled();
     });
+
+    test("Tenant B attempting GET /api/widgets/:id/embed on Tenant A's widget is blocked with 403", async () => {
+      widgetRepository.findWidgetById.mockResolvedValue(mockWidget);
+
+      const res = await request(app)
+        .get(`/api/widgets/${WIDGET_ID}/embed`)
+        .set('Authorization', `Bearer ${tokenTenantB}`);
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.statusCode).toBe(403);
+      expect(res.body.error.message).toMatch(/Forbidden/);
+    });
   });
 
   describe('4. Unauthenticated Access (401 Unauthorized)', () => {
@@ -248,6 +282,11 @@ describe('Authenticated Widget Management API (/api/widgets)', () => {
 
     test('GET /api/widgets without token returns 401', async () => {
       const res = await request(app).get('/api/widgets');
+      expect(res.status).toBe(401);
+    });
+
+    test('GET /api/widgets/:id/embed without token returns 401', async () => {
+      const res = await request(app).get(`/api/widgets/${WIDGET_ID}/embed`);
       expect(res.status).toBe(401);
     });
   });

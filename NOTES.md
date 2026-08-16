@@ -26,6 +26,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
 - [x] **Widget Configuration & Management**
   - [x] Multi-tenant CRUD API for widget configurations under `/api/widgets` (`src/routes/widgetRoutes.js`, `src/services/widgetService.js`, `src/repositories/widgetRepository.js`)
   - [x] Boundary validation with Zod schemas returning clean 400 JSON (`src/schemas/widgetSchemas.js`, `src/middleware/validate.js`)
+  - [x] Embed snippet generation (`<script src="http://localhost:PORT/widget.js?id=WIDGET_ID"></script>`) on creation, fetch, and dedicated `GET /api/widgets/:id/embed` endpoint (`src/utils/snippetHelper.js`, `src/routes/widgetRoutes.js`)
   - [ ] Domain whitelisting validation (`allowed_domains`)
   - [x] Dynamic JSON schema storage for widget layouts/fields (`src/db/migrations/001_initial_schema.sql`, `src/repositories/widgetRepository.js`)
 - [ ] **Geo-Targeting Resolution & Provider Fallback**
@@ -44,7 +45,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
 - [ ] **Testing & Quality Assurance**
   - [x] Unit tests for core services and tenant isolation guard (`tests/tenantIsolation.test.js`)
   - [x] Integration tests for authenticated endpoints (`tests/apiTenantIsolation.test.js`)
-  - [x] Widget CRUD happy paths, boundary validation failures, and cross-tenant tests (`tests/widgetManagement.test.js`)
+  - [x] Widget CRUD happy paths, embed snippet format/ID assertions, boundary validation failures, and cross-tenant tests (`tests/widgetManagement.test.js`)
   - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`, `tests/widgetManagement.test.js`)
 
 ---

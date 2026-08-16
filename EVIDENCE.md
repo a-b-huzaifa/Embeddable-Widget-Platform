@@ -181,6 +181,48 @@ Content-Type: application/json; charset=utf-8
 
 ---
 
+### Box: [x] Embed Snippet Generation (`GET /api/widgets/:id/embed`)
+**Transcript: Fetch ready-to-paste embed snippet string**
+```http
+GET /api/widgets/99999999-9999-9999-9999-999999999999/embed HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer <tenant_jwt_token>
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": true,
+  "data": {
+    "widget_id": "99999999-9999-9999-9999-999999999999",
+    "snippet": "<script src=\"http://localhost:3000/widget.js?id=99999999-9999-9999-9999-999999999999\"></script>"
+  }
+}
+```
+
+---
+
+### Box: [x] Cross-Tenant Embed Snippet Rejection (403 Forbidden)
+**Transcript: Tenant B attempting to fetch Tenant A's widget embed snippet**
+```http
+GET /api/widgets/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/embed HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer <tenant_b_jwt_token>
+
+HTTP/1.1 403 Forbidden
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": false,
+  "error": {
+    "message": "Forbidden: Access denied to widget belonging to another tenant",
+    "statusCode": 403
+  }
+}
+```
+
+---
+
 ### Box: [x] Missing Authentication Token (401 Unauthorized)
 **Transcript: Unauthenticated request to protected endpoint**
 ```http

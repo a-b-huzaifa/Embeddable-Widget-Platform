@@ -60,6 +60,23 @@ router.get(
   }
 );
 
+// GET /api/widgets/:id/embed - Get embed snippet string
+router.get(
+  '/:id/embed',
+  validate(widgetIdParamSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const result = await widgetService.getWidgetEmbedSnippet(req.params.id, req.tenantId);
+      res.status(200).json({
+        success: true,
+        data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 // PUT /api/widgets/:id - Update widget
 router.put(
   '/:id',

@@ -48,6 +48,41 @@ HTTP Request
 
 ---
 
+## Embed Flow & Integration Lifecycle
+
+The platform enables zero-code embeddable lead capture integration across third-party websites. As outlined in [DESIGN.md](file:///d:/FlyRank%20Internship/FlyRank%20Capstone%20Embeddable%20Widget%20&%20Lead-Capture%20Platform/DESIGN.md), the end-to-end integration lifecycle operates through a 4-step sequence:
+
+```
++-------------------------------------------------------------------------------+
+|                             Client Browser / Site                             |
++-------------------------------------------------------------------------------+
+        |                                                               │
+1. Load Snippet Tag                                             4. Ingest Lead
+   <script src=".../widget.js?id=WIDGET_ID">                       POST /api/public/submit
+        │                                                               ▲
+        ▼                                                               │
++------------------------------------+          +-------------------------------+
+| 2. Fetch Public Config             |          | 3. Render Widget UI           |
+|    GET /api/public/config          |--------->|    - Theme / Form Fields      |
+|    - Geo-resolution & variant rules|          |    - Trigger (delay/scroll)   |
++------------------------------------+          +-------------------------------+
+                                                                │
+                                                                ▼
+                                                +-------------------------------+
+                                                | User submits form data        |
+                                                +-------------------------------+
+```
+
+1. **Snippet Placement**: The tenant creates a widget and copies the ready-to-paste embed snippet:
+   ```html
+   <script src="http://localhost:3000/widget.js?id=WIDGET_ID"></script>
+   ```
+2. **Config & Geo Fetch**: When the client page loads, the script calls `GET /api/public/widgets/:id/config` (or resolves geo-targeted variants via `src/services/geoService.js`).
+3. **Dynamic Render**: The widget script parses the returned JSON schema (fields, theme, placement, triggers) and dynamically mounts the UI into the DOM / Shadow DOM without interfering with host page styles.
+4. **Lead Ingestion & Telemetry**: When a visitor submits the form, payload data is securely sent to `POST /api/public/widgets/:id/submit`, validated, rate-limited, and recorded with referrer and geolocation metadata.
+
+---
+
 ## Setup
 
 ### Prerequisites
