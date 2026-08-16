@@ -1,0 +1,108 @@
+# FlyRank Capstone Platform Manifest
+# Specification format for automated evaluation and grading probes
+
+name: flyrank-capstone-widget-platform
+version: "1.0.0"
+base_url: "http://localhost:3000"
+
+# Lifecycle execution commands
+run: "npm start"
+seed: "npm run db:seed"
+test: "npm test"
+
+# Key API Endpoints & Routes
+endpoints:
+  - path: "/health"
+    method: "GET"
+    auth: false
+    description: "System health and uptime check"
+
+  # Public Widget Delivery & Embed
+  - path: "/widget.v1.js"
+    method: "GET"
+    auth: false
+    description: "Versioned vanilla JS widget bundle with immutable Cache-Control"
+
+  - path: "/widgets/:id/config"
+    method: "GET"
+    auth: false
+    description: "Public widget configuration payload with short-lived cache"
+
+  # Public Lead Ingestion (CORS & Abuse-Protected)
+  - path: "/api/submissions"
+    method: "POST"
+    auth: false
+    description: "Public lead ingestion endpoint with honeypot detection, IP rate limiting, and geo enrichment"
+
+  # Multi-Tenant Authentication
+  - path: "/api/v1/auth/register"
+    method: "POST"
+    auth: false
+    description: "Tenant account registration with initial admin credentials"
+
+  - path: "/api/v1/auth/login"
+    method: "POST"
+    auth: false
+    description: "JWT authentication returning tenant-scoped bearer token"
+
+  - path: "/api/v1/auth/me"
+    method: "GET"
+    auth: true
+    description: "Retrieve authenticated user and tenant profile"
+
+  # Authenticated Widget Management (Tenant-Scoped CRUD)
+  - path: "/api/widgets"
+    method: "POST"
+    auth: true
+    description: "Create new lead capture widget"
+
+  - path: "/api/widgets"
+    method: "GET"
+    auth: true
+    description: "List all widgets belonging to authenticated tenant"
+
+  - path: "/api/widgets/:id"
+    method: "GET"
+    auth: true
+    description: "Retrieve single widget by ID with tenant ownership check"
+
+  - path: "/api/widgets/:id"
+    method: "PUT"
+    auth: true
+    description: "Update widget configuration"
+
+  - path: "/api/widgets/:id"
+    method: "DELETE"
+    auth: true
+    description: "Delete widget belonging to authenticated tenant"
+
+  - path: "/api/widgets/:id/embed"
+    method: "GET"
+    auth: true
+    description: "Generate ready-to-paste HTML embed snippet"
+
+  # Authenticated Owner Dashboard & Analytics
+  - path: "/api/dashboard/overview"
+    method: "GET"
+    auth: true
+    description: "Aggregated KPIs, time-series, widget leaderboards, and geo breakdown"
+
+  - path: "/api/dashboard/submissions-over-time"
+    method: "GET"
+    auth: true
+    description: "Time-series daily submission volume"
+
+  - path: "/api/dashboard/widgets"
+    method: "GET"
+    auth: true
+    description: "Per-widget performance metrics and activity"
+
+  - path: "/api/dashboard/geo"
+    method: "GET"
+    auth: true
+    description: "Geo-demographic visitor breakdown and percentages"
+
+  - path: "/api/dashboard/recent-submissions"
+    method: "GET"
+    auth: true
+    description: "Recent inbound lead submissions for tenant"

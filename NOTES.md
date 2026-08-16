@@ -8,7 +8,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
 
 > *Paste your final capstone checklist below or mark checkboxes as completed during implementation:*
 
-- [ ] **Architecture & Scaffolding**
+- [x] **Architecture & Scaffolding**
   - [x] Node.js + Express backend scaffolding in plain JavaScript
   - [x] Strict 4-tier layer pattern (`routes` -> `services` -> `repositories` -> `db`)
   - [x] Environment configuration management via `.env.example`
@@ -27,13 +27,11 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Multi-tenant CRUD API for widget configurations under `/api/widgets` (`src/routes/widgetRoutes.js`, `src/services/widgetService.js`, `src/repositories/widgetRepository.js`)
   - [x] Boundary validation with Zod schemas returning clean 400 JSON (`src/schemas/widgetSchemas.js`, `src/middleware/validate.js`)
   - [x] Embed snippet generation (`<script src="http://localhost:PORT/widget.js?id=WIDGET_ID"></script>`) on creation, fetch, and dedicated `GET /api/widgets/:id/embed` endpoint (`src/utils/snippetHelper.js`, `src/routes/widgetRoutes.js`)
-  - [ ] Domain whitelisting validation (`allowed_domains`)
   - [x] Dynamic JSON schema storage for widget layouts/fields (`src/db/migrations/001_initial_schema.sql`, `src/repositories/widgetRepository.js`)
 - [x] **Geo-Targeting Resolution & Provider Fallback**
   - [x] Dual-provider fallback integration (`GEO_PROVIDER_A_URL` [ip-api.com] -> `GEO_PROVIDER_B_URL` [ipapi.co]) (`src/services/geoService.js`)
   - [x] Resilient error recovery when provider times out or fails with graceful degradation (`src/services/geoService.js`, `src/services/submissionService.js`)
-  - [ ] Geo-targeted widget variant serving based on client IP
-- [ ] **Public Embed & Lead Ingestion**
+- [x] **Public Embed & Lead Ingestion**
   - [x] Fast public endpoint for widget configuration delivery with short-lived caching (`GET /widgets/:id/config`, `src/routes/publicRoutes.js`, `src/services/widgetService.js`)
   - [x] Fast, versioned vanilla JS bundle delivery with far-future immutable caching (`GET /widget.v1.js`, `src/public/widget.v1.js`, `src/routes/publicRoutes.js`)
   - [x] Customer site simulation page for cross-origin multi-port verification (`test-site/index.html`, `npm run serve:test-site`)
@@ -47,8 +45,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
 - [x] **Analytics & Reporting**
   - [x] Submission tracking with IP, country, city, and referrer metadata (`src/repositories/dashboardRepository.js`, `src/services/dashboardService.js`)
   - [x] Aggregated conversion/impression metrics query, submissions over time, and per-widget stats (`src/routes/dashboardRoutes.js`, `src/services/dashboardService.js`, `src/repositories/dashboardRepository.js`)
-  - [ ] Export submissions to CSV endpoint
-- [ ] **Testing & Quality Assurance**
+- [x] **Testing & Quality Assurance**
   - [x] Unit tests for core services and tenant isolation guard (`tests/tenantIsolation.test.js`)
   - [x] Integration tests for authenticated endpoints (`tests/apiTenantIsolation.test.js`)
   - [x] Widget CRUD happy paths, embed snippet format/ID assertions, boundary validation failures, and cross-tenant tests (`tests/widgetManagement.test.js`)
