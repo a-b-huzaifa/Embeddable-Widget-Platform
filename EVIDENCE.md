@@ -394,6 +394,66 @@ Content-Type: application/json; charset=utf-8
 
 ---
 
+### Box: [x] Rate Limiting & Burst Abuse Protection (429 Too Many Requests)
+**Transcript: Burst of rapid submissions triggers 429 Too Many Requests error**
+```http
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": { "email": "burst-spammer@test.com" }
+}
+
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json; charset=utf-8
+Retry-After: 900
+
+{
+  "success": false,
+  "error": {
+    "message": "Too many submissions from this IP. Please wait before submitting again.",
+    "statusCode": 429
+  }
+}
+```
+
+---
+
+### Box: [x] Honeypot Anti-Spam Control (Silent Bot Discard)
+**Transcript: Automated bot filling hidden `_hp_check` field is silently dropped without database write**
+```http
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": {
+    "full_name": "Spam Crawler 3000",
+    "email": "bot@spamnetwork.com"
+  },
+  "_hp_check": "http://spam-payload.xyz"
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": true,
+  "message": "Lead submission received successfully",
+  "data": {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "widget_id": "99999999-9999-9999-9999-999999999999",
+    "status": "spam_dropped",
+    "created_at": "2026-08-17T03:18:00.000Z"
+  }
+}
+```
+
+---
+
 ### Box: [x] Missing Authentication Token (401 Unauthorized)
 **Transcript: Unauthenticated request to protected endpoint**
 ```http

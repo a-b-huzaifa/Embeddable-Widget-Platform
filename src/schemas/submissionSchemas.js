@@ -19,6 +19,7 @@ const createSubmissionSchema = z.object({
       message: `Payload exceeds the maximum allowed size of ${MAX_PAYLOAD_BYTES / 1024}KB`
     }),
   referrer: z.string().max(2048, 'Referrer URL cannot exceed 2048 characters').optional().nullable(),
+  _hp_check: z.string().optional().nullable(),
   geo: z.object({
     country: z.string().optional(),
     city: z.string().optional(),

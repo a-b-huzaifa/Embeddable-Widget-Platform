@@ -2,9 +2,27 @@ const submissionRepository = require('../repositories/submissionRepository');
 const widgetRepository = require('../repositories/widgetRepository');
 const { NotFoundError, BadRequestError } = require('../middleware/errorHandler');
 
-async function submitLead({ widgetId, payload, geo = null, referrer = null, clientIp = null }) {
+async function submitLead({ widgetId, payload, geo = null, referrer = null, clientIp = null, hpCheck = null }) {
   if (!widgetId) {
     throw new BadRequestError('widget_id is required');
+  }
+
+  // Honeypot Anti-Spam Control:
+  // If the honeypot field is filled with any content, it indicates bot submission.
+  // Silently drop without writing to database.
+  const isBot = Boolean(
+    (hpCheck && String(hpCheck).trim().length > 0) ||
+    (payload && payload._hp_check && String(payload._hp_check).trim().length > 0)
+  );
+
+  if (isBot) {
+    // Return standard success response to bot, but bypass database write completely
+    return {
+      id: '00000000-0000-0000-0000-000000000000',
+      widget_id: widgetId,
+      status: 'spam_dropped',
+      created_at: new Date().toISOString()
+    };
   }
 
   // 1. Resolve target widget to verify existence and extract tenant_id

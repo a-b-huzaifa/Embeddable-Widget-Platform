@@ -40,7 +40,8 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Public lead submission ingestion endpoint linked to tenant and widget (`POST /api/submissions`, `src/routes/submissionRoutes.js`, `src/services/submissionService.js`, `src/repositories/submissionRepository.js`)
   - [x] Input validation and payload sanitization via Zod boundary checks (`src/schemas/submissionSchemas.js`, `src/middleware/validate.js`)
   - [x] Explicit CORS preflight and allowed origin whitelist verification (`src/middleware/corsConfig.js`)
-  - [ ] Per-IP and per-widget rate limiting to prevent spam
+  - [x] Per-IP and per-widget rate limiting returning 429 Too Many Requests on burst (`src/middleware/rateLimiter.js`, `src/routes/submissionRoutes.js`)
+  - [x] Honeypot anti-spam protection with silent bot discarding (`src/public/widget.v1.js`, `src/services/submissionService.js`, `src/schemas/submissionSchemas.js`)
 - [ ] **Analytics & Reporting**
   - [ ] Submission tracking with IP, country, city, and referrer metadata
   - [ ] Aggregated conversion/impression metrics query
@@ -51,6 +52,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Widget CRUD happy paths, embed snippet format/ID assertions, boundary validation failures, and cross-tenant tests (`tests/widgetManagement.test.js`)
   - [x] Public widget delivery and Cache-Control header verification tests (`tests/widgetDelivery.test.js`)
   - [x] Public lead submission ingestion, CORS preflight, and payload validation tests (`tests/submissionEndpoint.test.js`)
+  - [x] Abuse protection tests: 429 burst rate limiting, recovery, and honeypot spam drop verification (`tests/abuseProtection.test.js`)
   - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`, `tests/widgetManagement.test.js`)
 
 ---

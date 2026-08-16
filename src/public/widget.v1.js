@@ -110,6 +110,8 @@
 
     const bodyHtml = `
       <form id="flyrank-form-${id}" style="padding: 16px;">
+        <!-- Honeypot anti-spam field (hidden from human visitors) -->
+        <input type="text" name="_hp_check" value="" style="display:none !important; position: absolute; left: -9999px; width: 1px; height: 1px;" tabindex="-1" autocomplete="off" />
         <div id="flyrank-fields-${id}">${fieldsHtml}</div>
         <div id="flyrank-feedback-${id}" style="display: none; margin-bottom: 10px; font-size: 12px; padding: 8px; border-radius: 4px;"></div>
         ${submitButtonHtml}

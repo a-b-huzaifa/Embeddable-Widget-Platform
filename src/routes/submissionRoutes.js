@@ -4,6 +4,7 @@ const submissionService = require('../services/submissionService');
 const { validate } = require('../middleware/validate');
 const { createSubmissionSchema } = require('../schemas/submissionSchemas');
 const { submissionCors } = require('../middleware/corsConfig');
+const { submissionIpLimiter, submissionWidgetLimiter } = require('../middleware/rateLimiter');
 
 // Apply explicit CORS middleware for submissions
 router.use(submissionCors);
@@ -11,15 +12,17 @@ router.options('*', submissionCors);
 
 /**
  * POST /api/submissions
- * Public lead capture submission ingestion endpoint
+ * Public lead capture submission ingestion endpoint with rate limiting & honeypot anti-spam
  */
 router.post(
   '/',
+  submissionIpLimiter,
+  submissionWidgetLimiter,
   validate(createSubmissionSchema, 'body'),
   async (req, res, next) => {
     try {
       const widgetId = req.body.widget_id || req.body.widgetId;
-      const { payload, geo, referrer } = req.body;
+      const { payload, geo, referrer, _hp_check } = req.body;
       const clientIp = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
       const result = await submissionService.submitLead({
@@ -27,7 +30,8 @@ router.post(
         payload,
         geo,
         referrer: referrer || req.headers.referer || req.headers.referrer,
-        clientIp
+        clientIp,
+        hpCheck: _hp_check
       });
 
       res.status(201).json({
