@@ -1,0 +1,62 @@
+# Capstone Definition of Done (DoD) Implementation Mapping
+
+This document maps each capstone requirement and Definition of Done (DoD) criterion to the corresponding architectural layer and file location in the codebase.
+
+---
+
+## 1. Definition of Done (DoD) Checklist
+
+> *Paste your final capstone checklist below or mark checkboxes as completed during implementation:*
+
+- [ ] **Architecture & Scaffolding**
+  - [x] Node.js + Express backend scaffolding in plain JavaScript
+  - [x] Strict 4-tier layer pattern (`routes` -> `services` -> `repositories` -> `db`)
+  - [x] Environment configuration management via `.env.example`
+  - [x] Docker Compose PostgreSQL 16 service with persistent storage
+  - [x] Database connection pool in `src/db/index.js`
+  - [x] Idempotent SQL migration runner (`src/db/migrate.js`)
+  - [x] Initial schema DDL with `tenants`, `users`, `widgets`, and `submissions` (`001_initial_schema.sql`)
+  - [x] Multi-tenant & relational indexes (`idx_widgets_tenant_id`, `idx_submissions_tenant_id`, `idx_submissions_widget_id`, `idx_users_tenant_id`)
+  - [x] Database seeding script (`src/db/seed.js`)
+  - [ ] Global error handling and standardized JSON response format
+- [ ] **Multi-Tenancy & Authentication**
+  - [ ] Tenant signup and user registration
+  - [ ] JWT authentication with bcrypt password hashing
+  - [ ] Tenant isolation middleware (all operations scoped to authenticated `tenant_id`)
+- [ ] **Widget Configuration & Management**
+  - [ ] CRUD API for widget configurations
+  - [ ] Domain whitelisting validation (`allowed_domains`)
+  - [ ] Dynamic JSON schema storage for widget layouts/fields
+- [ ] **Geo-Targeting Resolution & Provider Fallback**
+  - [ ] Dual-provider fallback integration (`GEO_PROVIDER_A_URL` -> `GEO_PROVIDER_B_URL`)
+  - [ ] Resilient error recovery when provider times out or fails
+  - [ ] Geo-targeted widget variant serving based on client IP
+- [ ] **Public Embed & Lead Ingestion**
+  - [ ] Fast public endpoint for widget configuration delivery
+  - [ ] Public lead submission ingestion endpoint
+  - [ ] Input validation and payload sanitization
+  - [ ] Per-IP and per-widget rate limiting to prevent spam
+- [ ] **Analytics & Reporting**
+  - [ ] Submission tracking with IP, country, city, and referrer metadata
+  - [ ] Aggregated conversion/impression metrics query
+  - [ ] Export submissions to CSV endpoint
+- [ ] **Testing & Quality Assurance**
+  - [ ] Unit tests for core services (geo fallback, domain checker, auth)
+  - [ ] Integration tests for public and tenant-authenticated endpoints
+  - [ ] Negative test cases for rate limiting, invalid tokens, and cross-tenant access attempts
+
+---
+
+## 2. Implementation Layer & File Mapping
+
+| Feature / DoD Item | Layer | Target File(s) | Description |
+|---|---|---|---|
+| **Server Boot & Routing** | Entry & Routes | `src/app.js`, `src/routes/index.js` | Express app initialization, routing index, global error handler |
+| **Auth & Security Middleware** | Middleware | `src/middleware/auth.js`, `src/middleware/rateLimiter.js` | JWT verification, tenant scoping, IP rate limiting |
+| **Tenant & User Auth** | Routes / Services / Repos | `src/routes/authRoutes.js`, `src/services/authService.js`, `src/repositories/userRepository.js` | User login/registration and password hashing |
+| **Widget Management** | Routes / Services / Repos | `src/routes/widgetRoutes.js`, `src/services/widgetService.js`, `src/repositories/widgetRepository.js` | CRUD endpoints for widgets, domain verification |
+| **Geo Provider Fallback** | Services | `src/services/geoService.js` | Fallback logic calling Provider A with timeout failover to Provider B |
+| **Public Lead Capture API** | Routes / Services / Repos | `src/routes/publicRoutes.js`, `src/services/submissionService.js`, `src/repositories/submissionRepository.js` | Public config serving & lead submission ingestion |
+| **Analytics & Export** | Services / Repos | `src/services/analyticsService.js`, `src/repositories/submissionRepository.js` | Submission aggregation and CSV formatting |
+| **Database Pool & Migrations** | Database | `src/db/index.js`, `src/db/schema.sql` | Connection pool and table definitions |
+| **Automated Tests** | Tests | `tests/unit/`, `tests/integration/` | Jest/Supertest test suites |
