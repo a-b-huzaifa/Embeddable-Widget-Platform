@@ -182,6 +182,19 @@ The project includes a standalone static HTML website simulation at [`test-site/
 
 ---
 
+## Confirmation Side Effects & Safe Execution Architecture
+
+When a submission is received, the system follows a resilient two-phase execution lifecycle:
+1. **Critical Work (Synchronous & Mandatory)**: Boundary validation, honeypot spam detection, tenant resolution, safe IP-to-geo enrichment, and PostgreSQL persistence in `submissions`.
+2. **Safe Side Effect (Post-Persistence)**: Upon successful database commit, the system triggers `notificationService.sendSubmissionConfirmation`.
+
+### Choice of Confirmation Mechanism
+- **Built-in Console Mail Logger (`src/services/notificationService.js`)**: Emits structured email dispatch logs containing recipient, subject, widget title, lead payload, and timestamp.
+- **Design Rationale**: A built-in zero-dependency console mail dispatcher provides immediate, transparent observability during local development and evaluation without requiring external SMTP credentials or brittle third-party network dependencies. Pluggable adapters allow seamless forwarding to Mailpit (`localhost:1025`) or tenant webhook URLs.
+- **Safe Isolation Guarantee**: Side effects are wrapped in a resilient execution boundary (`dispatchSafeConfirmation`). If a webhook or SMTP transport throws an unhandled exception or connection timeout, the error is safely caught and logged to error telemetry, **guaranteeing the submission remains persisted and the client receives a 201 Created response**.
+
+---
+
 ## Limitations
 
 - Multi-region database replication is not implemented for the initial prototype.

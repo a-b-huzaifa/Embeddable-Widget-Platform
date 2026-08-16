@@ -2,6 +2,7 @@ const submissionRepository = require('../repositories/submissionRepository');
 const widgetRepository = require('../repositories/widgetRepository');
 const { NotFoundError, BadRequestError } = require('../middleware/errorHandler');
 const { geoService } = require('./geoService');
+const { dispatchSafeConfirmation } = require('./notificationService');
 
 async function submitLead({
   widgetId,
@@ -10,7 +11,8 @@ async function submitLead({
   referrer = null,
   clientIp = null,
   hpCheck = null,
-  geoProviders = null
+  geoProviders = null,
+  notificationHandler = null
 }) {
   if (!widgetId) {
     throw new BadRequestError('widget_id is required');
@@ -59,7 +61,7 @@ async function submitLead({
     ...(referrer ? { referrer } : {})
   };
 
-  // 4. Persist submission linked to correct widget_id and tenant_id
+  // 4. Primary Critical Work: Persist submission linked to widget_id and tenant_id
   const submission = await submissionRepository.createSubmission({
     widgetId: widget.id,
     tenantId: widget.tenant_id,
@@ -67,6 +69,13 @@ async function submitLead({
     geo: Object.keys(enrichedGeo).length > 0 ? enrichedGeo : null,
     status: 'new'
   });
+
+  // 5. Post-Storage Safe Side Effect: Dispatch lead confirmation notification
+  // Guaranteed to NEVER bubble errors or cause the submission request to fail
+  await dispatchSafeConfirmation(
+    { submission, widget, payload },
+    notificationHandler
+  );
 
   return {
     id: submission.id,

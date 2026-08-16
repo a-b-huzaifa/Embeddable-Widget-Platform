@@ -549,6 +549,81 @@ Content-Type: application/json; charset=utf-8
 
 ---
 
+### Box: [x] Confirmation Side Effect & Safe Execution Boundary
+**Transcript 1: Lead Confirmation Notification Dispatched Successfully**
+```http
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": {
+    "full_name": "Alice Prospect",
+    "email": "alice@prospect.com"
+  }
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": true,
+  "message": "Lead submission received successfully",
+  "data": {
+    "id": "sub-confirm-1234",
+    "widget_id": "99999999-9999-9999-9999-999999999999",
+    "tenant_id": "11111111-1111-1111-1111-111111111111",
+    "status": "new",
+    "created_at": "2026-08-17T03:34:00.000Z"
+  }
+}
+
+<!-- Server Telemetry Console Event -->
+====================================================
+📧 [NEW LEAD CONFIRMATION DISPATCH]
+To: alice@prospect.com
+Subject: Confirmation: Your submission for "Enterprise Quote Widget"
+Timestamp: 2026-08-17T03:34:00.000Z
+Submission ID: sub-confirm-1234
+Widget ID: 99999999-9999-9999-9999-999999999999
+Lead Name: Alice Prospect
+Payload Summary: {"full_name":"Alice Prospect","email":"alice@prospect.com"}
+Status: Dispatched Successfully
+====================================================
+```
+
+**Transcript 2: Forced Side-Effect Failure Isolation (Safe Side Effects)**
+```http
+<!-- Scenario: Notification transport forcefully throws an unhandled exception (e.g. SMTP connection refused or Webhook 500) -->
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": { "email": "isolated@failure.com" }
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": true,
+  "message": "Lead submission received successfully",
+  "data": {
+    "id": "sub-confirm-1234",
+    "widget_id": "99999999-9999-9999-9999-999999999999",
+    "status": "new"
+  }
+}
+
+<!-- Server Log: Error safely caught & isolated without failing the submission -->
+[NotificationService] Safe confirmation side effect failed: FATAL: Mailpit SMTP transport connection refused / Webhook 500 error
+```
+
+---
+
 ### Box: [x] Missing Authentication Token (401 Unauthorized)
 **Transcript: Unauthenticated request to protected endpoint**
 ```http
