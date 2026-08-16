@@ -29,12 +29,8 @@ Thumbs.db
 *.swp
 *.swo
 
-# Markdown Context & Design Files
+# Internal Agent & Workspace Context
 DESIGN.md
-design.md
 memory.md
-MEMORY.md
 NOTES.md
-notes.md
 EVIDENCE.md
-
