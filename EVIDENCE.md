@@ -10,32 +10,126 @@ This document provides concrete execution logs, test outputs, and curl transcrip
 > flyrank-capstone-widget-platform@1.0.0 test
 > node ./node_modules/jest/bin/jest.js --runInBand --detectOpenHandles
 
+PASS tests/e2eIntegration.test.js
+  Full End-to-End Capstone Integration Lifecycle (Stage 12)
+    √ Complete End-to-End Lifecycle Flow (45 ms)
+
+PASS tests/dashboardApi.test.js
+  Authenticated Owner Dashboard API (/api/dashboard)
+    1. Authentication Guard Verification
+      √ GET /api/dashboard/overview - returns 401 Unauthorized when token is missing (8 ms)
+      √ GET /api/dashboard/overview - returns 401 Unauthorized for malformed/invalid token (6 ms)
+    2. Aggregation & Dashboard Query Verification
+      √ GET /api/dashboard/overview - returns full aggregated analytics for authenticated tenant (12 ms)
+      √ GET /api/dashboard/submissions-over-time - returns time-series submission data (7 ms)
+      √ GET /api/dashboard/widgets - returns per-widget performance metrics (7 ms)
+      √ GET /api/dashboard/geo - returns geo-demographic breakdown with percentages (7 ms)
+    3. Multi-Tenant Isolation in Dashboard Queries
+      √ Tenant B dashboard queries strictly pass Tenant B ID and never touch Tenant A data (8 ms)
+
 PASS tests/widgetManagement.test.js
   Authenticated Widget Management API (/api/widgets)
     1. Happy Paths (CRUD)
-      √ POST /api/widgets - creates widget successfully (201 Created) (38 ms)
-      √ GET /api/widgets - lists all widgets for tenant (200 OK) (7 ms)
+      √ POST /api/widgets - creates widget successfully (201 Created) (35 ms)
+      √ GET /api/widgets - lists all widgets for tenant (200 OK) (6 ms)
       √ GET /api/widgets/:id - retrieves single widget for owning tenant (200 OK) (5 ms)
-      √ PUT /api/widgets/:id - updates widget for owning tenant (200 OK) (8 ms)
-      √ DELETE /api/widgets/:id - deletes widget for owning tenant (200 OK) (6 ms)
+      √ PUT /api/widgets/:id - updates widget for owning tenant (200 OK) (6 ms)
+      √ DELETE /api/widgets/:id - deletes widget for owning tenant (200 OK) (5 ms)
     2. Boundary Validation Failures (Zod 400 Bad Request JSON)
-      √ POST /api/widgets - missing or empty title returns clean 400 JSON (8 ms)
-      √ POST /api/widgets - whitespace-only title returns clean 400 JSON (6 ms)
-      √ POST /api/widgets - invalid field definition structure returns clean 400 JSON (6 ms)
-      √ GET /api/widgets/:id - malformed non-UUID id param returns clean 400 JSON (5 ms)
+      √ POST /api/widgets - missing or empty title returns clean 400 JSON (6 ms)
+      √ POST /api/widgets - whitespace-only title returns clean 400 JSON (5 ms)
+      √ POST /api/widgets - invalid field definition structure returns clean 400 JSON (5 ms)
+      √ GET /api/widgets/:id - malformed non-UUID id param returns clean 400 JSON (4 ms)
     3. Cross-Tenant Isolation Rejection (403 Forbidden)
-      √ Tenant B attempting GET /api/widgets/:id on Tenant A's widget is blocked with 403 (6 ms)
-      √ Tenant B attempting PUT /api/widgets/:id on Tenant A's widget is blocked with 403 (6 ms)
-      √ Tenant B attempting DELETE /api/widgets/:id on Tenant A's widget is blocked with 403 (6 ms)
+      √ Tenant B attempting GET /api/widgets/:id on Tenant A's widget is blocked with 403 (5 ms)
+      √ Tenant B attempting PUT /api/widgets/:id on Tenant A's widget is blocked with 403 (5 ms)
+      √ Tenant B attempting DELETE /api/widgets/:id on Tenant A's widget is blocked with 403 (5 ms)
     4. Unauthenticated Access (401 Unauthorized)
       √ POST /api/widgets without token returns 401 (4 ms)
       √ GET /api/widgets without token returns 401 (3 ms)
+    5. Embed Snippet Generation
+      √ POST /api/widgets attaches ready-to-paste embed snippet matching expected format (6 ms)
+      √ GET /api/widgets/:id attaches ready-to-paste embed snippet matching expected format (5 ms)
+      √ GET /api/widgets/:id/embed returns dedicated snippet string payload (5 ms)
+
+PASS tests/submissionEndpoint.test.js
+  Public Lead Submission Endpoint (POST /api/submissions)
+    1. Valid End-to-End Submission & Tenant Linking
+      √ POST /api/submissions - successfully ingests submission linked to correct widget_id and tenant_id (201 Created) (12 ms)
+      √ POST /api/submissions requires NO authentication header (8 ms)
+    2. Strict Input Validation (400 Bad Request JSON)
+      √ POST /api/submissions - rejects missing or empty payload with 400 JSON (6 ms)
+      √ POST /api/submissions - rejects malformed payload data type with 400 JSON (5 ms)
+      √ POST /api/submissions - rejects malformed non-UUID widget_id with 400 JSON (5 ms)
+      √ POST /api/submissions - rejects non-existent widget_id with 404 JSON (5 ms)
+      √ POST /api/submissions - rejects oversized payload (>10KB) with 400 JSON (6 ms)
+    3. CORS Preflight & Origin Whitelist Handling
+      √ OPTIONS /api/submissions - returns correct CORS preflight headers for whitelisted origin (http://localhost:5500) (6 ms)
+      √ POST /api/submissions - returns Access-Control-Allow-Origin for whitelisted origin (http://127.0.0.1:5500) (6 ms)
+      √ OPTIONS /api/submissions - rejects disallowed origin without Access-Control-Allow-Origin header (5 ms)
+      √ POST /api/submissions - disallowed origin does NOT receive Access-Control-Allow-Origin header (5 ms)
+
+PASS tests/abuseProtection.test.js
+  Abuse Protection & Rate Limiting (Stage 8)
+    1. Honeypot Anti-Spam Protection
+      √ Honeypot filled in top-level _hp_check: silently drops spam without database write (10 ms)
+      √ Honeypot filled inside payload._hp_check: silently drops spam without database write (7 ms)
+      √ Legitimate submission with empty/omitted honeypot field succeeds and calls database insert (8 ms)
+    2. Rate Limiting & 429 Too Many Requests Burst Protection
+      √ Burst of requests exceeding rate limit threshold triggers 429 Too Many Requests JSON (15 ms)
+      √ Rate limit recovers after window expiry allowing subsequent legitimate requests (75 ms)
+
+PASS tests/widgetDelivery.test.js
+  Fast, Cached Widget Delivery Routes
+    1. Versioned Widget Bundle Delivery (/widget.v1.js & /widget.js)
+      √ GET /widget.v1.js - returns JS bundle with far-future immutable Cache-Control and CORS (11 ms)
+      √ GET /widget.js - alias route returns bundle with identical caching headers (7 ms)
+      √ Widget bundle endpoint requires NO authentication (6 ms)
+    2. Public Widget Config Delivery (/widgets/:id/config)
+      √ GET /widgets/:id/config - returns short-lived Cache-Control and CORS headers without auth (8 ms)
+      √ GET /widgets/:id/config - payload shape contains all required display and field properties (7 ms)
+      √ GET /api/public/widgets/:id/config - alias route returns identical config (7 ms)
+      √ GET /widgets/:id/config - returns 404 for non-existent widget (6 ms)
+      √ GET /widgets/:id/config - returns 400 for malformed non-UUID id param (6 ms)
+
+PASS tests/apiTenantIsolation.test.js
+  HTTP API End-to-End Tenant Isolation & Auth Tests
+    HTTP 401 Unauthorized probes
+      √ GET /api/v1/widgets without token returns 401 (8 ms)
+      √ GET /api/v1/widgets with invalid token returns 401 (7 ms)
+    HTTP 403 Forbidden Cross-Tenant Access Probes
+      √ Tenant B attempting GET /api/v1/widgets/:id of Tenant A's widget receives 403 (7 ms)
+      √ Tenant B attempting PUT /api/v1/widgets/:id of Tenant A's widget receives 403 (8 ms)
+      √ Tenant B attempting DELETE /api/v1/widgets/:id of Tenant A's widget receives 403 (7 ms)
+      √ Tenant A accessing GET /api/v1/widgets/:id receives 200 OK with widget data (8 ms)
+
+PASS tests/confirmationSideEffect.test.js
+  Submission Confirmation Side Effect & Safe Execution (Stage 10)
+    1. Happy Path Confirmation Side Effect
+      √ Default sendSubmissionConfirmation formats and logs confirmation data (1 ms)
+      √ Submission flow calls confirmation side effect upon successful persistence (8 ms)
+    2. Forced Side-Effect Failure Isolation (Safe Side Effects)
+      √ Forced side-effect failure: throws error, submission is STILL stored, returns 201 success (7 ms)
+      √ HTTP Integration: POST /api/submissions returns 201 Created even if side effect throws (9 ms)
+      √ dispatchSafeConfirmation helper isolates asynchronous rejections (1 ms)
+
+PASS tests/geoEnrichment.test.js
+  IP-to-Geo Enrichment with Fallback Chain (Stage 9)
+    1. GeoEnrichmentService Fallback Chain Unit Tests
+      √ Provider A succeeds: returns Provider A geo data without calling Provider B (2 ms)
+      √ Provider A fails, Provider B succeeds: falls back to Provider B (2 ms)
+      √ Both Provider A and Provider B fail: returns null without throwing (1 ms)
+      √ Private/Localhost IP (127.0.0.1): skips external lookups and returns null (1 ms)
+    2. Submission Flow Integration with Fallback Chain
+      √ Scenario 1: Provider A succeeds -> submission stored with Provider A geo data (6 ms)
+      √ Scenario 2: Provider A fails, Provider B succeeds -> submission stored with Provider B geo data (6 ms)
+      √ Scenario 3: Both providers fail -> submission is STILL stored successfully (graceful degradation) (6 ms)
 
 PASS tests/tenantIsolation.test.js
   Tenant Isolation & Authentication Tests
     1. Tenant Isolation Guard Unit Tests (assertTenantOwnership)
       √ should allow access when resourceTenantId matches currentTenantId (1 ms)
-      √ should throw ForbiddenError (403) when Tenant B attempts to access Tenant A resource (8 ms)
+      √ should throw ForbiddenError (403) when Tenant B attempts to access Tenant A resource (1 ms)
       √ should throw 400 if tenant parameters are missing (1 ms)
     2. Auth Middleware Token & 401 Enforcement
       √ should return 401 when Authorization header is missing (1 ms)
@@ -48,25 +142,31 @@ PASS tests/tenantIsolation.test.js
       √ Tenant B CANNOT read Tenant A's widget -> throws 403 Forbidden (1 ms)
       √ Tenant B CANNOT modify (PUT) Tenant A's widget -> throws 403 Forbidden (1 ms)
       √ Tenant B CANNOT delete (DELETE) Tenant A's widget -> throws 403 Forbidden (1 ms)
-      √ Tenant A CAN modify and delete their own widget (2 ms)
+      √ Tenant A CAN modify and delete their own widget (1 ms)
 
-PASS tests/apiTenantIsolation.test.js
-  HTTP API End-to-End Tenant Isolation & Auth Tests
-    HTTP 401 Unauthorized probes
-      √ GET /api/v1/widgets without token returns 401 (10 ms)
-      √ GET /api/v1/widgets with invalid token returns 401 (7 ms)
-    HTTP 403 Forbidden Cross-Tenant Access Probes
-      √ Tenant B attempting GET /api/v1/widgets/:id of Tenant A's widget receives 403 (8 ms)
-      √ Tenant B attempting PUT /api/v1/widgets/:id of Tenant A's widget receives 403 (9 ms)
-      √ Tenant B attempting DELETE /api/v1/widgets/:id of Tenant A's widget receives 403 (9 ms)
-      √ Tenant A accessing GET /api/v1/widgets/:id receives 200 OK with widget data (10 ms)
-
-Test Suites: 3 passed, 3 total
-Tests:       33 passed, 33 total
+--------------------------------------------------------------------------------
+Test Suites: 10 passed, 10 total
+Tests:       80 passed, 80 total
 Snapshots:   0 total
-Time:        1.958 s
+Time:        4.097 s
 Ran all test suites.
+--------------------------------------------------------------------------------
 ```
+
+### Full Capstone Test Matrix Mapping
+
+| Required Test Area | Test Suite | Test Cases | Status |
+|---|---|---|---|
+| **CORS Preflight** | `tests/submissionEndpoint.test.js`, `tests/widgetDelivery.test.js` | Preflight `OPTIONS`, `Access-Control-Allow-Origin`, allowed methods & headers | **PASSED** |
+| **Invalid Payload** | `tests/submissionEndpoint.test.js`, `tests/widgetManagement.test.js` | Missing title, empty payload, non-UUID params -> 400 Bad Request JSON | **PASSED** |
+| **Oversized Payload** | `tests/submissionEndpoint.test.js` | Payloads exceeding 10KB rejected with 400 Bad Request JSON | **PASSED** |
+| **Rate Limiting** | `tests/abuseProtection.test.js` | Rapid burst triggers 429 Too Many Requests; recovers after window | **PASSED** |
+| **Spam Control / Honeypot** | `tests/abuseProtection.test.js` | Filled `_hp_check` silently dropped without database write | **PASSED** |
+| **Provider Fallback** | `tests/geoEnrichment.test.js` | Provider A -> Provider B fallback -> graceful degradation without failure | **PASSED** |
+| **Widget Rendering & Delivery** | `tests/widgetDelivery.test.js`, `tests/e2eIntegration.test.js` | Versioned bundle `/widget.v1.js`, public config, immutable headers | **PASSED** |
+| **Tenant Isolation (Graded Probe)** | `tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`, `tests/widgetManagement.test.js`, `tests/dashboardApi.test.js` | Tenant A vs Tenant B access rejected with 403 Forbidden across CRUD & analytics | **PASSED** |
+| **Safe Side Effect Failure** | `tests/confirmationSideEffect.test.js`, `tests/geoEnrichment.test.js` | Forced side effect / notification exception isolated, request returns 201 | **PASSED** |
+| **Full End-to-End Lifecycle** | `tests/e2eIntegration.test.js` | Tenant register -> Widget create -> Snippet embed -> Customer render -> Lead submit -> Dashboard stats | **PASSED** |
 
 ---
 
