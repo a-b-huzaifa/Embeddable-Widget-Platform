@@ -44,9 +44,9 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Honeypot anti-spam protection with silent bot discarding (`src/public/widget.v1.js`, `src/services/submissionService.js`, `src/schemas/submissionSchemas.js`)
   - [x] Safe side-effect IP-to-geo enrichment during submission ingestion (`src/services/geoService.js`, `src/services/submissionService.js`)
   - [x] Lead confirmation notification safe side effect with guaranteed error isolation (`src/services/notificationService.js`, `src/services/submissionService.js`)
-- [ ] **Analytics & Reporting**
-  - [ ] Submission tracking with IP, country, city, and referrer metadata
-  - [ ] Aggregated conversion/impression metrics query
+- [x] **Analytics & Reporting**
+  - [x] Submission tracking with IP, country, city, and referrer metadata (`src/repositories/dashboardRepository.js`, `src/services/dashboardService.js`)
+  - [x] Aggregated conversion/impression metrics query, submissions over time, and per-widget stats (`src/routes/dashboardRoutes.js`, `src/services/dashboardService.js`, `src/repositories/dashboardRepository.js`)
   - [ ] Export submissions to CSV endpoint
 - [ ] **Testing & Quality Assurance**
   - [x] Unit tests for core services and tenant isolation guard (`tests/tenantIsolation.test.js`)
@@ -57,6 +57,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Abuse protection tests: 429 burst rate limiting, recovery, and honeypot spam drop verification (`tests/abuseProtection.test.js`)
   - [x] IP-to-geo enrichment fallback chain tests: Provider A success, Provider B fallback, graceful degradation (`tests/geoEnrichment.test.js`)
   - [x] Lead confirmation side effect and forced failure isolation tests (`tests/confirmationSideEffect.test.js`)
+  - [x] Authenticated owner dashboard API and multi-tenant aggregation tests (`tests/dashboardApi.test.js`)
   - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`, `tests/widgetManagement.test.js`)
 
 ---

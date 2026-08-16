@@ -624,10 +624,68 @@ Content-Type: application/json; charset=utf-8
 
 ---
 
+### Box: [x] Authenticated Owner Dashboard API (`GET /api/dashboard/overview`)
+**Transcript: Authenticated Tenant Overview with Time-Series, Widgets & Geo Breakdown**
+```http
+GET /api/dashboard/overview HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer <tenant_jwt_token>
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": true,
+  "data": {
+    "summary": {
+      "total_widgets": 3,
+      "total_submissions": 42,
+      "submissions_7d": 15,
+      "submissions_30d": 42
+    },
+    "submissions_over_time": [
+      { "date": "2026-08-15", "count": 10 },
+      { "date": "2026-08-16", "count": 20 },
+      { "date": "2026-08-17", "count": 12 }
+    ],
+    "widgets": [
+      {
+        "widget_id": "w-1",
+        "title": "Demo Widget A1",
+        "type": "lead_capture",
+        "submission_count": 30,
+        "latest_submission_at": "2026-08-17T03:00:00.000Z"
+      },
+      {
+        "widget_id": "w-2",
+        "title": "Demo Widget A2",
+        "type": "newsletter",
+        "submission_count": 12,
+        "latest_submission_at": "2026-08-16T12:00:00.000Z"
+      }
+    ],
+    "geo_breakdown": [
+      { "country": "United States", "country_code": "US", "count": 30, "percentage": 71.43 },
+      { "country": "Canada", "country_code": "CA", "count": 12, "percentage": 28.57 }
+    ],
+    "recent_submissions": [
+      {
+        "id": "sub-1",
+        "widget_id": "w-1",
+        "status": "new",
+        "created_at": "2026-08-17T03:00:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+---
+
 ### Box: [x] Missing Authentication Token (401 Unauthorized)
 **Transcript: Unauthenticated request to protected endpoint**
 ```http
-GET /api/widgets HTTP/1.1
+GET /api/dashboard/overview HTTP/1.1
 Host: localhost:3000
 
 HTTP/1.1 401 Unauthorized

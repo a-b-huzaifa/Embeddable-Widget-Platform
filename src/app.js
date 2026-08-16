@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const widgetRoutes = require('./routes/widgetRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const submissionRoutes = require('./routes/submissionRoutes');
 const { errorHandler, NotFoundError } = require('./middleware/errorHandler');
@@ -37,6 +38,10 @@ app.use('/api/auth', authRoutes);
 // Widget Management Routes
 app.use('/api/widgets', widgetRoutes);
 app.use('/api/v1/widgets', widgetRoutes);
+
+// Owner Dashboard & Analytics Routes
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
 
 // Catch 404 for unknown endpoints
 app.use((req, res, next) => {
