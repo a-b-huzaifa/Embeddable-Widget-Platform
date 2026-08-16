@@ -29,8 +29,11 @@ Thumbs.db
 *.swp
 *.swo
 
-#MD Files
-*.NOTES.md
-*.memory.md
-*.DESIGN.md
+# Markdown Context & Design Files
+DESIGN.md
+design.md
+memory.md
+MEMORY.md
+NOTES.md
+notes.md
 

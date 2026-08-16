@@ -18,15 +18,15 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Initial schema DDL with `tenants`, `users`, `widgets`, and `submissions` (`001_initial_schema.sql`)
   - [x] Multi-tenant & relational indexes (`idx_widgets_tenant_id`, `idx_submissions_tenant_id`, `idx_submissions_widget_id`, `idx_users_tenant_id`)
   - [x] Database seeding script (`src/db/seed.js`)
-  - [ ] Global error handling and standardized JSON response format
-- [ ] **Multi-Tenancy & Authentication**
-  - [ ] Tenant signup and user registration
-  - [ ] JWT authentication with bcrypt password hashing
-  - [ ] Tenant isolation middleware (all operations scoped to authenticated `tenant_id`)
+  - [x] Global error handling and standardized JSON response format (`src/middleware/errorHandler.js`, `src/app.js`)
+- [x] **Multi-Tenancy & Authentication**
+  - [x] Tenant signup and user registration (`src/routes/authRoutes.js`, `src/services/authService.js`, `src/repositories/tenantRepository.js`, `src/repositories/userRepository.js`)
+  - [x] JWT authentication with bcrypt password hashing (`src/services/authService.js`, `src/middleware/auth.js`)
+  - [x] Tenant isolation middleware & reusable guard (all operations scoped to authenticated `tenant_id`, 403 on cross-tenant access) (`src/middleware/tenantGuard.js`, `src/middleware/auth.js`, `src/services/widgetService.js`)
 - [ ] **Widget Configuration & Management**
-  - [ ] CRUD API for widget configurations
+  - [x] Multi-tenant CRUD API for widget configurations (`src/routes/widgetRoutes.js`, `src/services/widgetService.js`, `src/repositories/widgetRepository.js`)
   - [ ] Domain whitelisting validation (`allowed_domains`)
-  - [ ] Dynamic JSON schema storage for widget layouts/fields
+  - [x] Dynamic JSON schema storage for widget layouts/fields (`src/db/migrations/001_initial_schema.sql`, `src/repositories/widgetRepository.js`)
 - [ ] **Geo-Targeting Resolution & Provider Fallback**
   - [ ] Dual-provider fallback integration (`GEO_PROVIDER_A_URL` -> `GEO_PROVIDER_B_URL`)
   - [ ] Resilient error recovery when provider times out or fails
@@ -41,9 +41,9 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [ ] Aggregated conversion/impression metrics query
   - [ ] Export submissions to CSV endpoint
 - [ ] **Testing & Quality Assurance**
-  - [ ] Unit tests for core services (geo fallback, domain checker, auth)
-  - [ ] Integration tests for public and tenant-authenticated endpoints
-  - [ ] Negative test cases for rate limiting, invalid tokens, and cross-tenant access attempts
+  - [x] Unit tests for core services and tenant isolation guard (`tests/tenantIsolation.test.js`)
+  - [x] Integration tests for authenticated endpoints (`tests/apiTenantIsolation.test.js`)
+  - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`)
 
 ---
 

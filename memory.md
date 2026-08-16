@@ -2,7 +2,7 @@
 
 **Project**: `flyrank-capstone-widget-platform`  
 **Workspace**: FlyRank Capstone Embeddable Widget & Lead-Capture Platform  
-**Stage**: Phase 1 - Docker PostgreSQL & Database Layer Setup  
+**Stage**: Phase 2 - Authentication & Tenant Isolation Implementation  
 **Last Updated**: 2026-08-17  
 
 ---
@@ -11,6 +11,7 @@
 - **Goal**: Build an enterprise-grade, embeddable lead capture widget and management platform backend.
 - **Core Capabilities**:
   - Multi-tenant data segregation (Tenants, Users, Widgets, Submissions).
+  - Strict tenant isolation enforced at both middleware and service/repository layers.
   - Geo-targeting resolution with dual-provider fallback (`GEO_PROVIDER_A_URL` -> `GEO_PROVIDER_B_URL`).
   - High-performance, secure public endpoints for script configuration fetch and lead submission.
   - Granular analytics and tenant submission exporting.
@@ -19,34 +20,31 @@
 
 ## 2. Technical Decisions & Invariants
 - **Language**: Plain JavaScript (CommonJS / Node.js 18+). No TypeScript.
-- **Framework**: Express.js with a modular 4-tier layer pattern:
-  - `src/routes/`: Route definitions and request parsing.
-  - `src/middleware/`: Authentication (JWT), input validation, rate limiting, and CORS error handling.
-  - `src/services/`: Business logic, geo fallback mechanisms, domain verification.
-  - `src/repositories/`: Database interaction queries and mutations.
-  - `src/db/`: Connection pool (`pg.Pool`), idempotent migration runner (`src/db/migrate.js`), seed scripts (`src/db/seed.js`), and schema DDL (`src/db/migrations/`).
-  - `tests/`: Integration and unit test suites.
-- **Database & Migrations**: PostgreSQL 16 via Docker Compose (`docker-compose.yml`) with persistent volume `pgdata`. Schema migrations are written in pure, transparent `.sql` files without heavy ORM bloat and executed idempotently via `npm run db:migrate`.
-- **Git Invariant**: Agent MUST NOT execute any git commands (`git init`, `git add`, `git commit`, etc.). All git/GitHub operations are managed manually by the user.
+- **Authentication**: JWT (`jsonwebtoken`) + password hashing via `bcryptjs` (pure JS, zero native compile friction on Windows).
+- **Tenant Isolation**:
+  - `src/middleware/auth.js` verifies token and binds `req.tenantId` & `req.user`. Missing/invalid tokens return **401 Unauthorized**.
+  - `src/middleware/tenantGuard.js` exports `assertTenantOwnership(resourceTenantId, currentTenantId)` and `tenantGuard`. Cross-tenant attempts throw `ForbiddenError` returning **403 Forbidden**.
+  - `src/repositories/widgetRepository.js` provides tenant-scoped queries.
+  - `src/services/widgetService.js` guards all read, update, and delete mutations.
+- **Testing**: Automated unit & integration test suites in `tests/tenantIsolation.test.js` and `tests/apiTenantIsolation.test.js` (19 passing test cases verifying 401 unauthenticated & 403 cross-tenant isolation).
+- **Git Invariant**: Agent MUST NOT execute any git commands. User manages git manually.
 
 ---
 
 ## 3. Current Stage Status
-- [x] Initialized directory structure: `src/routes`, `src/services`, `src/repositories`, `src/middleware`, `src/db`, `tests`.
-- [x] Configured Docker Compose for PostgreSQL 16 with health check and named volume.
-- [x] Implemented PostgreSQL connection pool in `src/db/index.js`.
-- [x] Created initial schema migration `src/db/migrations/001_initial_schema.sql` defining:
-  - `tenants`, `users` (auth), `widgets`, and `submissions` tables.
-  - Required indexes: `idx_widgets_tenant_id`, `idx_submissions_tenant_id`, `idx_submissions_widget_id`, `idx_users_tenant_id`.
-- [x] Implemented migration runner (`src/db/migrate.js`) with `schema_migrations` tracking.
-- [x] Implemented seed script (`src/db/seed.js`) inserting demo tenant ('Acme Corp'), demo admin user, and sample lead-capture widget.
-- [x] Added `db:migrate` and `db:seed` scripts and `pg` dependency to `package.json`.
-- [x] Updated `README.md`, `NOTES.md`, and `memory.md`.
+- [x] Implemented JWT authentication endpoints (`POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `GET /api/v1/auth/me`).
+- [x] Implemented `authMiddleware` enforcing 401 on missing/invalid/expired tokens and attaching `req.tenantId`.
+- [x] Implemented reusable tenant isolation guard `assertTenantOwnership` enforcing 403 on cross-tenant access.
+- [x] Implemented tenant-isolated widget management CRUD endpoints (`/api/v1/widgets`).
+- [x] Built comprehensive automated test suite (19 tests) proving:
+  - Missing/invalid tokens return 401.
+  - Tenant A can access and modify their own widget (200).
+  - Tenant B cannot read, update, or delete Tenant A's widget (403).
+- [x] Updated `NOTES.md`, `memory.md`, and `walkthrough.md`.
 
 ---
 
 ## 4. Next Immediate Steps
-1. Configure Express server entry point in `src/app.js` with base middleware and health check routes.
-2. Build repository layer (`tenantRepository.js`, `userRepository.js`, `widgetRepository.js`, `submissionRepository.js`).
-3. Build authentication & tenant isolation layer (`src/middleware/auth.js`, `src/services/authService.js`).
-4. Implement geo-fallback service (`src/services/geoService.js`) with provider A/B failover.
+1. Implement Geo-Targeting Service (`src/services/geoService.js`) with resilient dual-provider fallback (`GEO_PROVIDER_A_URL` -> `GEO_PROVIDER_B_URL`).
+2. Build public embed configuration serving endpoint (`GET /api/v1/public/widgets/:widgetKey/config`) with domain whitelisting check.
+3. Build public lead capture submission endpoint (`POST /api/v1/public/widgets/:widgetKey/submit`) with payload validation & rate limiting.
