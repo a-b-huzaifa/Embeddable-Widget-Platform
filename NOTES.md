@@ -37,8 +37,9 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Fast public endpoint for widget configuration delivery with short-lived caching (`GET /widgets/:id/config`, `src/routes/publicRoutes.js`, `src/services/widgetService.js`)
   - [x] Fast, versioned vanilla JS bundle delivery with far-future immutable caching (`GET /widget.v1.js`, `src/public/widget.v1.js`, `src/routes/publicRoutes.js`)
   - [x] Customer site simulation page for cross-origin multi-port verification (`test-site/index.html`, `npm run serve:test-site`)
-  - [ ] Public lead submission ingestion endpoint
-  - [ ] Input validation and payload sanitization
+  - [x] Public lead submission ingestion endpoint linked to tenant and widget (`POST /api/submissions`, `src/routes/submissionRoutes.js`, `src/services/submissionService.js`, `src/repositories/submissionRepository.js`)
+  - [x] Input validation and payload sanitization via Zod boundary checks (`src/schemas/submissionSchemas.js`, `src/middleware/validate.js`)
+  - [x] Explicit CORS preflight and allowed origin whitelist verification (`src/middleware/corsConfig.js`)
   - [ ] Per-IP and per-widget rate limiting to prevent spam
 - [ ] **Analytics & Reporting**
   - [ ] Submission tracking with IP, country, city, and referrer metadata
@@ -49,6 +50,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Integration tests for authenticated endpoints (`tests/apiTenantIsolation.test.js`)
   - [x] Widget CRUD happy paths, embed snippet format/ID assertions, boundary validation failures, and cross-tenant tests (`tests/widgetManagement.test.js`)
   - [x] Public widget delivery and Cache-Control header verification tests (`tests/widgetDelivery.test.js`)
+  - [x] Public lead submission ingestion, CORS preflight, and payload validation tests (`tests/submissionEndpoint.test.js`)
   - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`, `tests/widgetManagement.test.js`)
 
 ---

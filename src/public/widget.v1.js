@@ -131,7 +131,7 @@
         payload[key] = value;
       });
 
-      const submitUrl = `${apiOrigin}/api/public/widgets/${id}/submit`;
+      const submitUrl = `${apiOrigin}/api/submissions`;
 
       const submitBtn = form.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
@@ -141,6 +141,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          widget_id: id,
           payload,
           referrer: window.location.href
         })

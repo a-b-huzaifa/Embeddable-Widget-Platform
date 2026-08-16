@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const router = express.Router();
 const widgetService = require('../services/widgetService');
 const { authMiddleware } = require('../middleware/auth');
@@ -8,6 +9,8 @@ const {
   updateWidgetSchema,
   widgetIdParamSchema
 } = require('../schemas/widgetSchemas');
+
+router.use(cors());
 
 // All widget management endpoints require authentication
 router.use(authMiddleware);

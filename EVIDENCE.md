@@ -297,6 +297,103 @@ Access-Control-Allow-Methods: GET, OPTIONS
 
 ---
 
+### Box: [x] Public Lead Submission Ingestion (`POST /api/submissions`)
+**Transcript: Valid Lead Submission Ingested and Linked to Tenant (201 Created)**
+```http
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+Origin: http://localhost:5500
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": {
+    "full_name": "Jane Lead",
+    "email": "jane.lead@enterprise.com",
+    "company_size": "51-200"
+  },
+  "referrer": "http://localhost:5500"
+}
+
+HTTP/1.1 201 Created
+Access-Control-Allow-Origin: http://localhost:5500
+Access-Control-Allow-Credentials: true
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": true,
+  "message": "Lead submission received successfully",
+  "data": {
+    "id": "7b8f9e20-3344-4a55-8c77-99bb11ee22ff",
+    "widget_id": "99999999-9999-9999-9999-999999999999",
+    "tenant_id": "11111111-1111-1111-1111-111111111111",
+    "status": "new",
+    "created_at": "2026-08-17T03:02:00.000Z"
+  }
+}
+```
+
+---
+
+### Box: [x] Explicit CORS Preflight (`OPTIONS /api/submissions`)
+**Transcript: Preflight check from test site origin (http://localhost:5500)**
+```http
+OPTIONS /api/submissions HTTP/1.1
+Host: localhost:3000
+Origin: http://localhost:5500
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type
+
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: http://localhost:5500
+Access-Control-Allow-Methods: POST, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization, Accept, Origin, X-Requested-With
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 86400
+```
+
+---
+
+### Box: [x] Disallowed Origin CORS Rejection
+**Transcript: Cross-Origin request from unauthorized origin does not receive allow headers**
+```http
+OPTIONS /api/submissions HTTP/1.1
+Host: localhost:3000
+Origin: http://disallowed-malicious-site.com
+Access-Control-Request-Method: POST
+
+HTTP/1.1 204 No Content
+(No Access-Control-Allow-Origin header returned)
+```
+
+---
+
+### Box: [x] Strict Payload Boundary Validation (400 Bad Request)
+**Transcript: Oversized payload (>10KB) or empty payload rejected without 500 error**
+```http
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": {}
+}
+
+HTTP/1.1 400 Bad Request
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": false,
+  "error": {
+    "message": "Validation error: payload Payload must be a non-empty object containing at least one field",
+    "statusCode": 400
+  }
+}
+```
+
+---
+
 ### Box: [x] Missing Authentication Token (401 Unauthorized)
 **Transcript: Unauthenticated request to protected endpoint**
 ```http

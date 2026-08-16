@@ -5,14 +5,14 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const widgetRoutes = require('./routes/widgetRoutes');
 const publicRoutes = require('./routes/publicRoutes');
+const submissionRoutes = require('./routes/submissionRoutes');
 const { errorHandler, NotFoundError } = require('./middleware/errorHandler');
 
 const app = express();
 
 // Global Middlewares
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -21,6 +21,10 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Public Lead Ingestion Endpoint (CORS-managed)
+app.use('/api/submissions', submissionRoutes);
+app.use('/api', submissionRoutes);
 
 // Public Widget Delivery Routes (Unauthenticated, Fast Cached)
 app.use('/', publicRoutes);

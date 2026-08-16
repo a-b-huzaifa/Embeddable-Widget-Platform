@@ -1,7 +1,10 @@
 const express = require('express');
+const cors = require('cors');
 const router = express.Router();
 const authService = require('../services/authService');
 const { authMiddleware } = require('../middleware/auth');
+
+router.use(cors());
 
 // POST /api/v1/auth/register
 router.post('/register', async (req, res, next) => {
