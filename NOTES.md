@@ -23,8 +23,9 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Tenant signup and user registration (`src/routes/authRoutes.js`, `src/services/authService.js`, `src/repositories/tenantRepository.js`, `src/repositories/userRepository.js`)
   - [x] JWT authentication with bcrypt password hashing (`src/services/authService.js`, `src/middleware/auth.js`)
   - [x] Tenant isolation middleware & reusable guard (all operations scoped to authenticated `tenant_id`, 403 on cross-tenant access) (`src/middleware/tenantGuard.js`, `src/middleware/auth.js`, `src/services/widgetService.js`)
-- [ ] **Widget Configuration & Management**
-  - [x] Multi-tenant CRUD API for widget configurations (`src/routes/widgetRoutes.js`, `src/services/widgetService.js`, `src/repositories/widgetRepository.js`)
+- [x] **Widget Configuration & Management**
+  - [x] Multi-tenant CRUD API for widget configurations under `/api/widgets` (`src/routes/widgetRoutes.js`, `src/services/widgetService.js`, `src/repositories/widgetRepository.js`)
+  - [x] Boundary validation with Zod schemas returning clean 400 JSON (`src/schemas/widgetSchemas.js`, `src/middleware/validate.js`)
   - [ ] Domain whitelisting validation (`allowed_domains`)
   - [x] Dynamic JSON schema storage for widget layouts/fields (`src/db/migrations/001_initial_schema.sql`, `src/repositories/widgetRepository.js`)
 - [ ] **Geo-Targeting Resolution & Provider Fallback**
@@ -43,7 +44,8 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
 - [ ] **Testing & Quality Assurance**
   - [x] Unit tests for core services and tenant isolation guard (`tests/tenantIsolation.test.js`)
   - [x] Integration tests for authenticated endpoints (`tests/apiTenantIsolation.test.js`)
-  - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`)
+  - [x] Widget CRUD happy paths, boundary validation failures, and cross-tenant tests (`tests/widgetManagement.test.js`)
+  - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`, `tests/widgetManagement.test.js`)
 
 ---
 

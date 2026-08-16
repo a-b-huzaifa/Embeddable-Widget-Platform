@@ -23,6 +23,10 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/auth', authRoutes);
+
+// Widget Management Routes
+app.use('/api/widgets', widgetRoutes);
 app.use('/api/v1/widgets', widgetRoutes);
 
 // Catch 404 for unknown endpoints
@@ -30,7 +34,7 @@ app.use((req, res, next) => {
   next(new NotFoundError(`Endpoint ${req.method} ${req.originalUrl} not found`));
 });
 
-// Global Error Handler Middleware
+// Global Error Handler Middleware (ensures clean JSON responses)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
