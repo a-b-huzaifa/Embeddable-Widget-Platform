@@ -223,6 +223,71 @@ Content-Type: application/json; charset=utf-8
 
 ---
 
+### Box: [x] Fast, Cached Public Widget Bundle Delivery (`GET /widget.v1.js`)
+**Transcript: Fetch versioned bundle with far-future immutable Cache-Control**
+```http
+GET /widget.v1.js HTTP/1.1
+Host: localhost:3000
+
+HTTP/1.1 200 OK
+Content-Type: application/javascript; charset=utf-8
+Cache-Control: public, max-age=31536000, immutable
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, OPTIONS
+
+(function () {
+  'use strict';
+  // [FlyRank Widget] self-executing bundle...
+})();
+```
+
+---
+
+### Box: [x] Public Widget Configuration Delivery with Short Cache (`GET /widgets/:id/config`)
+**Transcript: Fetch public widget config (no auth, short-lived cache)**
+```http
+GET /widgets/99999999-9999-9999-9999-999999999999/config HTTP/1.1
+Host: localhost:3000
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Cache-Control: public, max-age=60, s-maxage=60
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, OPTIONS
+
+{
+  "success": true,
+  "data": {
+    "id": "99999999-9999-9999-9999-999999999999",
+    "type": "lead_capture",
+    "title": "Public Lead Widget",
+    "description": "Contact us for a demo",
+    "fields": [
+      {
+        "id": "full_name",
+        "type": "text",
+        "label": "Full Name",
+        "required": true
+      },
+      {
+        "id": "email",
+        "type": "email",
+        "label": "Work Email",
+        "required": true
+      }
+    ],
+    "button_text": "Get Started",
+    "display_options": {
+      "theme": "dark",
+      "primary_color": "#2563eb",
+      "position": "bottom-right"
+    }
+  }
+}
+```
+
+---
+
 ### Box: [x] Missing Authentication Token (401 Unauthorized)
 **Transcript: Unauthenticated request to protected endpoint**
 ```http

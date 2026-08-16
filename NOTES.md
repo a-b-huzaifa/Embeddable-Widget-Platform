@@ -34,7 +34,8 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [ ] Resilient error recovery when provider times out or fails
   - [ ] Geo-targeted widget variant serving based on client IP
 - [ ] **Public Embed & Lead Ingestion**
-  - [ ] Fast public endpoint for widget configuration delivery
+  - [x] Fast public endpoint for widget configuration delivery with short-lived caching (`GET /widgets/:id/config`, `src/routes/publicRoutes.js`, `src/services/widgetService.js`)
+  - [x] Fast, versioned vanilla JS bundle delivery with far-future immutable caching (`GET /widget.v1.js`, `src/public/widget.v1.js`, `src/routes/publicRoutes.js`)
   - [ ] Public lead submission ingestion endpoint
   - [ ] Input validation and payload sanitization
   - [ ] Per-IP and per-widget rate limiting to prevent spam
@@ -46,6 +47,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Unit tests for core services and tenant isolation guard (`tests/tenantIsolation.test.js`)
   - [x] Integration tests for authenticated endpoints (`tests/apiTenantIsolation.test.js`)
   - [x] Widget CRUD happy paths, embed snippet format/ID assertions, boundary validation failures, and cross-tenant tests (`tests/widgetManagement.test.js`)
+  - [x] Public widget delivery and Cache-Control header verification tests (`tests/widgetDelivery.test.js`)
   - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`, `tests/widgetManagement.test.js`)
 
 ---

@@ -107,11 +107,31 @@ async function deleteWidget(widgetId, currentTenantId) {
   return widgetRepository.deleteWidget(widgetId, currentTenantId);
 }
 
+async function getPublicWidgetConfig(widgetId) {
+  const widget = await widgetRepository.findWidgetById(widgetId);
+
+  if (!widget) {
+    throw new NotFoundError(`Widget with ID ${widgetId} not found`);
+  }
+
+  // Return public-safe payload (no tenant secrets or internal metadata)
+  return {
+    id: widget.id,
+    type: widget.type,
+    title: widget.title,
+    description: widget.description || '',
+    fields: widget.fields || [],
+    button_text: widget.button_text || widget.buttonText || 'Submit',
+    display_options: widget.display_options || widget.displayOptions || {}
+  };
+}
+
 module.exports = {
   createWidget,
   listWidgets,
   getWidgetById,
   getWidgetEmbedSnippet,
+  getPublicWidgetConfig,
   updateWidget,
   deleteWidget,
   formatWidgetResponse

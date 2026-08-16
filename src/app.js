@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const widgetRoutes = require('./routes/widgetRoutes');
+const publicRoutes = require('./routes/publicRoutes');
 const { errorHandler, NotFoundError } = require('./middleware/errorHandler');
 
 const app = express();
@@ -21,7 +22,11 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
+// Public Widget Delivery Routes (Unauthenticated, Fast Cached)
+app.use('/', publicRoutes);
+app.use('/api/public', publicRoutes);
+
+// Protected API Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/auth', authRoutes);
 
