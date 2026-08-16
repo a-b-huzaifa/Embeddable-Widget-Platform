@@ -29,9 +29,9 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Embed snippet generation (`<script src="http://localhost:PORT/widget.js?id=WIDGET_ID"></script>`) on creation, fetch, and dedicated `GET /api/widgets/:id/embed` endpoint (`src/utils/snippetHelper.js`, `src/routes/widgetRoutes.js`)
   - [ ] Domain whitelisting validation (`allowed_domains`)
   - [x] Dynamic JSON schema storage for widget layouts/fields (`src/db/migrations/001_initial_schema.sql`, `src/repositories/widgetRepository.js`)
-- [ ] **Geo-Targeting Resolution & Provider Fallback**
-  - [ ] Dual-provider fallback integration (`GEO_PROVIDER_A_URL` -> `GEO_PROVIDER_B_URL`)
-  - [ ] Resilient error recovery when provider times out or fails
+- [x] **Geo-Targeting Resolution & Provider Fallback**
+  - [x] Dual-provider fallback integration (`GEO_PROVIDER_A_URL` [ip-api.com] -> `GEO_PROVIDER_B_URL` [ipapi.co]) (`src/services/geoService.js`)
+  - [x] Resilient error recovery when provider times out or fails with graceful degradation (`src/services/geoService.js`, `src/services/submissionService.js`)
   - [ ] Geo-targeted widget variant serving based on client IP
 - [ ] **Public Embed & Lead Ingestion**
   - [x] Fast public endpoint for widget configuration delivery with short-lived caching (`GET /widgets/:id/config`, `src/routes/publicRoutes.js`, `src/services/widgetService.js`)
@@ -42,6 +42,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Explicit CORS preflight and allowed origin whitelist verification (`src/middleware/corsConfig.js`)
   - [x] Per-IP and per-widget rate limiting returning 429 Too Many Requests on burst (`src/middleware/rateLimiter.js`, `src/routes/submissionRoutes.js`)
   - [x] Honeypot anti-spam protection with silent bot discarding (`src/public/widget.v1.js`, `src/services/submissionService.js`, `src/schemas/submissionSchemas.js`)
+  - [x] Safe side-effect IP-to-geo enrichment during submission ingestion (`src/services/geoService.js`, `src/services/submissionService.js`)
 - [ ] **Analytics & Reporting**
   - [ ] Submission tracking with IP, country, city, and referrer metadata
   - [ ] Aggregated conversion/impression metrics query
@@ -53,6 +54,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
   - [x] Public widget delivery and Cache-Control header verification tests (`tests/widgetDelivery.test.js`)
   - [x] Public lead submission ingestion, CORS preflight, and payload validation tests (`tests/submissionEndpoint.test.js`)
   - [x] Abuse protection tests: 429 burst rate limiting, recovery, and honeypot spam drop verification (`tests/abuseProtection.test.js`)
+  - [x] IP-to-geo enrichment fallback chain tests: Provider A success, Provider B fallback, graceful degradation (`tests/geoEnrichment.test.js`)
   - [x] Negative test cases for missing/invalid tokens (401) and cross-tenant access attempts (403) (`tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`, `tests/widgetManagement.test.js`)
 
 ---

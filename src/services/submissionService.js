@@ -1,8 +1,17 @@
 const submissionRepository = require('../repositories/submissionRepository');
 const widgetRepository = require('../repositories/widgetRepository');
 const { NotFoundError, BadRequestError } = require('../middleware/errorHandler');
+const { geoService } = require('./geoService');
 
-async function submitLead({ widgetId, payload, geo = null, referrer = null, clientIp = null, hpCheck = null }) {
+async function submitLead({
+  widgetId,
+  payload,
+  geo = null,
+  referrer = null,
+  clientIp = null,
+  hpCheck = null,
+  geoProviders = null
+}) {
   if (!widgetId) {
     throw new BadRequestError('widget_id is required');
   }
@@ -31,14 +40,26 @@ async function submitLead({ widgetId, payload, geo = null, referrer = null, clie
     throw new NotFoundError(`Widget with ID ${widgetId} not found`);
   }
 
-  // 2. Format geo / telemetry metadata
+  // 2. Safe IP-to-Geo Enrichment with Fallback Chain
+  let resolvedGeo = null;
+  if (clientIp) {
+    try {
+      resolvedGeo = await geoService.resolveIpGeo(clientIp, geoProviders);
+    } catch (err) {
+      // Safe side effect: Geolocation lookup failure must never fail the submission
+      console.warn(`[SubmissionService] Geo enrichment error for IP ${clientIp}: ${err.message}`);
+    }
+  }
+
+  // 3. Format geo / telemetry metadata
   const enrichedGeo = {
     ...(geo || {}),
+    ...(resolvedGeo || {}),
     ...(clientIp ? { client_ip: clientIp } : {}),
     ...(referrer ? { referrer } : {})
   };
 
-  // 3. Persist submission linked to correct widget_id and tenant_id
+  // 4. Persist submission linked to correct widget_id and tenant_id
   const submission = await submissionRepository.createSubmission({
     widgetId: widget.id,
     tenantId: widget.tenant_id,

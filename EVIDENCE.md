@@ -454,6 +454,101 @@ Content-Type: application/json; charset=utf-8
 
 ---
 
+### Box: [x] IP-to-Geo Enrichment with Fallback Chain
+**Transcript 1: Primary Provider A (ip-api.com) succeeds -> Enriched with Provider A**
+```http
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+X-Forwarded-For: 198.51.100.42
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": { "email": "lead-us@example.com" }
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": true,
+  "message": "Lead submission received successfully",
+  "data": {
+    "id": "sub-1111",
+    "widget_id": "99999999-9999-9999-9999-999999999999",
+    "tenant_id": "11111111-1111-1111-1111-111111111111",
+    "status": "new",
+    "created_at": "2026-08-17T03:30:00.000Z"
+  }
+}
+<!-- Database row geo field: -->
+{
+  "country": "United States",
+  "country_code": "US",
+  "city": "Austin",
+  "region": "Texas",
+  "latitude": 30.2672,
+  "longitude": -97.7431,
+  "provider": "ip-api.com",
+  "client_ip": "198.51.100.42"
+}
+```
+
+**Transcript 2: Provider A fails -> Resilient fallback to Provider B (ipapi.co)**
+```http
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+X-Forwarded-For: 198.51.100.42
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": { "email": "lead-ca@example.com" }
+}
+
+HTTP/1.1 201 Created
+<!-- Database row geo field: -->
+{
+  "country": "Canada",
+  "country_code": "CA",
+  "city": "Toronto",
+  "region": "Ontario",
+  "latitude": 43.6532,
+  "longitude": -79.3832,
+  "provider": "ipapi.co",
+  "client_ip": "198.51.100.42"
+}
+```
+
+**Transcript 3: Both providers fail -> Safe degradation (submission still stored, request never fails)**
+```http
+POST /api/submissions HTTP/1.1
+Host: localhost:3000
+X-Forwarded-For: 198.51.100.42
+Content-Type: application/json
+
+{
+  "widget_id": "99999999-9999-9999-9999-999999999999",
+  "payload": { "email": "lead-degraded@example.com" }
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+
+{
+  "success": true,
+  "message": "Lead submission received successfully",
+  "data": {
+    "id": "sub-3333",
+    "widget_id": "99999999-9999-9999-9999-999999999999",
+    "status": "new"
+  }
+}
+<!-- Database row geo field: { "client_ip": "198.51.100.42" } -->
+```
+
+---
+
 ### Box: [x] Missing Authentication Token (401 Unauthorized)
 **Transcript: Unauthenticated request to protected endpoint**
 ```http
