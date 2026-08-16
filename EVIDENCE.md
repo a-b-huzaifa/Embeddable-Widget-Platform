@@ -223,6 +223,15 @@ Content-Type: application/json; charset=utf-8
 
 ---
 
+### Box: [x] Customer Site Simulation (`test-site/index.html`) & Multi-Port Serving
+**Setup Details**:
+- Single static HTML file located at `test-site/index.html`.
+- Served on `http://localhost:5500` via `npm run serve:test-site` (`npx -y serve test-site -p 5500`).
+- Embeds snippet `<script src="http://localhost:3000/widget.v1.js?id=..."></script>`.
+- Browser initiates cross-origin GET requests from `http://localhost:5500` to `http://localhost:3000` for the JS bundle and `/widgets/:id/config` JSON, rendering the interactive lead form dynamically in the DOM.
+
+---
+
 ### Box: [x] Fast, Cached Public Widget Bundle Delivery (`GET /widget.v1.js`)
 **Transcript: Fetch versioned bundle with far-future immutable Cache-Control**
 ```http

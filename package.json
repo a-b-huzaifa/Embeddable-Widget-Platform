@@ -8,6 +8,7 @@
     "dev": "node --watch src/app.js",
     "db:migrate": "node src/db/migrate.js",
     "db:seed": "node src/db/seed.js",
+    "serve:test-site": "npx -y serve test-site -p 5500",
     "test": "node ./node_modules/jest/bin/jest.js --runInBand --detectOpenHandles"
   },
   "keywords": [

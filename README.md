@@ -154,6 +154,34 @@ npm test
 
 ---
 
+## Customer Site Simulation (`test-site/`) & Cross-Origin Verification
+
+The project includes a standalone static HTML website simulation at [`test-site/index.html`](file:///d:/FlyRank%20Internship/FlyRank%20Capstone%20Embeddable%20Widget%20&%20Lead-Capture%20Platform/test-site/index.html).
+
+> [!NOTE]
+> **Customer Site Context**: This directory represents the **"customer site"** referenced throughout the FlyRank capstone brief. **No paid hosting, domain registration, or external CDN is needed.** The test site is served on a different local port (e.g. `5500`) to prove genuine cross-origin widget delivery, CORS resolution, and public configuration fetch.
+
+### How to Serve on a Different Port
+1. Ensure the backend API is running on port **3000**:
+   ```bash
+   npm run dev
+   ```
+2. In a separate terminal, serve the customer test site on port **5500**:
+   ```bash
+   npm run serve:test-site
+   ```
+   *(Or manually via: `npx -y serve test-site -p 5500`)*
+
+### Manual Cross-Origin Verification Steps
+1. Open your browser and navigate to `http://localhost:5500`.
+2. Inspect the network tab in Developer Tools:
+   - **Bundle Fetch**: `http://localhost:3000/widget.v1.js` is loaded cross-origin with `Cache-Control: public, max-age=31536000, immutable`.
+   - **Config Fetch**: `http://localhost:3000/widgets/:id/config` is requested cross-origin with `Cache-Control: public, max-age=60, s-maxage=60` and `Access-Control-Allow-Origin: *`.
+3. **Observe UI Render**: The responsive lead-capture widget appears floating in the bottom-right (or configured position) matching the widget's theme and dynamic fields.
+4. **Dynamic Widget Swapping**: Test any custom widget ID by appending `?widgetId=YOUR_WIDGET_UUID` to the URL (e.g. `http://localhost:5500/?widgetId=e4b281f9-9065-4f46-92da-246e9dfd0891`).
+
+---
+
 ## Limitations
 
 - Multi-region database replication is not implemented for the initial prototype.

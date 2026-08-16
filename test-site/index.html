@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Website Simulation - Acme Client Portal</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: white;
+      padding: 3rem 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .hero h1 {
+      font-size: 2.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+    }
+
+    .card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .origin-banner {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    .origin-banner code {
+      background: #dbeafe;
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.25rem;
+      font-family: monospace;
+      color: #1e40af;
+      font-weight: 600;
+    }
+
+    /* Target placeholder div for inline or fixed widget verification */
+    #flyrank-widget-placeholder {
+      margin-top: 1rem;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      🌐 Apex Enterprises <span class="badge">Customer Site Simulation</span>
+    </div>
+    <div style="font-size: 0.85rem; color: #64748b;">
+      Simulating Third-Party Host on <code>http://localhost:5500</code>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="origin-banner">
+      <strong>Cross-Origin Verification Notice:</strong> This test page is served from a separate origin (e.g. <code>http://localhost:5500</code>). The embed script tag below contacts the FlyRank backend API running on <code>http://localhost:3000</code> to fetch configuration and dynamically inject the interactive lead-capture form.
+    </div>
+
+    <section class="hero">
+      <h1>Accelerate Your Enterprise Growth</h1>
+      <p>Seamless integrations, automated lead workflows, and multi-tenant analytics built for high-performance marketing operations.</p>
+    </section>
+
+    <div class="grid">
+      <div class="card">
+        <h3>⚡ Real-Time Ingestion</h3>
+        <p>Lead captures are validated at boundary and ingested securely into dedicated multi-tenant database partitions.</p>
+      </div>
+      <div class="card">
+        <h3>🌍 Geo-Targeted Delivery</h3>
+        <p>Smart geo-resolution ensures visitors see localized copy and regional form options with provider fallback.</p>
+      </div>
+      <div class="card">
+        <h3>🔒 Strict Isolation</h3>
+        <p>Zero cross-tenant leakage. Every widget mutation and submission query is scoped and guarded.</p>
+      </div>
+    </div>
+
+    <!-- Widget DOM Mount Placeholder -->
+    <div id="flyrank-widget-placeholder"></div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- FLYRANK EMBED SCRIPT SNIPPET (Cross-Origin Delivery from localhost:3000) -->
+  <!-- Replace the 'id' parameter with your actual created widget UUID if testing a custom widget -->
+  <!-- ===================================================================== -->
+  <script src="http://localhost:3000/widget.v1.js?id=00000000-0000-0000-0000-000000000001" id="flyrank-embed-script"></script>
+
+  <script>
+    // Helper to allow dynamic test widget ID swapping via URL query parameter: ?widgetId=...
+    const urlParams = new URLSearchParams(window.location.search);
+    const customWidgetId = urlParams.get('widgetId') || urlParams.get('id');
+    if (customWidgetId) {
+      const existingScript = document.getElementById('flyrank-embed-script');
+      if (existingScript) existingScript.remove();
+
+      const newScript = document.createElement('script');
+      newScript.src = `http://localhost:3000/widget.v1.js?id=${customWidgetId}`;
+      document.body.appendChild(newScript);
+    }
+  </script>
+</body>
+</html>

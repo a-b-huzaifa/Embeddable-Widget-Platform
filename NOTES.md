@@ -36,6 +36,7 @@ This document maps each capstone requirement and Definition of Done (DoD) criter
 - [ ] **Public Embed & Lead Ingestion**
   - [x] Fast public endpoint for widget configuration delivery with short-lived caching (`GET /widgets/:id/config`, `src/routes/publicRoutes.js`, `src/services/widgetService.js`)
   - [x] Fast, versioned vanilla JS bundle delivery with far-future immutable caching (`GET /widget.v1.js`, `src/public/widget.v1.js`, `src/routes/publicRoutes.js`)
+  - [x] Customer site simulation page for cross-origin multi-port verification (`test-site/index.html`, `npm run serve:test-site`)
   - [ ] Public lead submission ingestion endpoint
   - [ ] Input validation and payload sanitization
   - [ ] Per-IP and per-widget rate limiting to prevent spam

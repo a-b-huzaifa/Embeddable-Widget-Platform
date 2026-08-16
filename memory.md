@@ -2,7 +2,7 @@
 
 **Project**: `flyrank-capstone-widget-platform`  
 **Workspace**: FlyRank Capstone Embeddable Widget & Lead-Capture Platform  
-**Stage**: Phase 5 - Fast, Cached Widget Delivery Implementation  
+**Stage**: Phase 6 - Plain HTML Customer Site Simulation & Multi-Port Testing  
 **Last Updated**: 2026-08-17  
 
 ---
@@ -13,7 +13,8 @@
   - Multi-tenant data segregation (Tenants, Users, Widgets, Submissions).
   - Strict tenant isolation enforced at both middleware and service/repository layers.
   - Boundary validation with Zod schemas ensuring clean 4xx responses.
-  - High-performance, cached public delivery for widget JS bundles (`/widget.v1.js`) and JSON config (`/widgets/:id/config`).
+  - Fast, cached public delivery for widget JS bundles (`/widget.v1.js`) and JSON config (`/widgets/:id/config`).
+  - Standalone customer site simulation (`test-site/index.html`) running on port 5500 for cross-origin verification.
   - Geo-targeting resolution with dual-provider fallback (`GEO_PROVIDER_A_URL` -> `GEO_PROVIDER_B_URL`).
   - Secure public endpoints for lead submission ingestion with rate limiting and domain whitelisting.
   - Granular analytics and tenant submission exporting.
@@ -22,21 +23,20 @@
 
 ## 2. Technical Decisions & Invariants
 - **Language**: Plain JavaScript (CommonJS / Node.js 18+). No TypeScript.
-- **Public Widget Delivery & Caching Strategy**:
-  - `GET /widget.v1.js` (and `/widget.js`): Served from `src/public/widget.v1.js` (vanilla JS, zero dependencies, responsive form builder, auto DOM injection). Cached with `Cache-Control: public, max-age=31536000, immutable`.
-  - `GET /widgets/:id/config` (and `/api/public/widgets/:id/config`): Returns public-sanitized JSON schema (title, fields, display options) excluding internal tenant IDs. Cached with `Cache-Control: public, max-age=60, s-maxage=60`.
-  - Both routes are fully public (no auth required) with wildcard CORS (`Access-Control-Allow-Origin: *`).
+- **Customer Website Simulation**:
+  - Static HTML5 file at `test-site/index.html` (zero frameworks, pure HTML/CSS/JS).
+  - Served on `http://localhost:5500` via `npm run serve:test-site` (`npx -y serve test-site -p 5500`).
+  - Confirmed as the "customer site" referenced throughout the capstone brief (no real hosting, domain, or CDN required).
+  - Supports dynamic query parameter swapping: `http://localhost:5500/?widgetId=YOUR_WIDGET_UUID`.
 - **Testing**: 44 passing automated tests across 4 test suites (`tests/widgetDelivery.test.js`, `tests/widgetManagement.test.js`, `tests/tenantIsolation.test.js`, `tests/apiTenantIsolation.test.js`).
 - **Git Invariant**: Agent MUST NOT execute any git commands. User manages git manually.
 
 ---
 
 ## 3. Current Stage Status
-- [x] Created vanilla JS client bundle `src/public/widget.v1.js`.
-- [x] Implemented public sanitized config query `getPublicWidgetConfig` in `src/services/widgetService.js`.
-- [x] Created `src/routes/publicRoutes.js` with tailored `Cache-Control` headers and wildcard CORS.
-- [x] Mounted public routes in `src/app.js`.
-- [x] Built test suite `tests/widgetDelivery.test.js` verifying caching headers, CORS, public access, config shape, and 404/400 errors.
+- [x] Created `test-site/index.html` customer site simulation.
+- [x] Added `serve:test-site` script to `package.json`.
+- [x] Updated `README.md` with multi-port cross-origin verification guide and customer site clarification.
 - [x] Updated `EVIDENCE.md`, `NOTES.md`, `memory.md`, and `walkthrough.md`.
 
 ---
